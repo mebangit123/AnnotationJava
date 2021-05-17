@@ -1,17 +1,22 @@
 package com.anno.csv.addressbook;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
 import com.anno.csv.CSVUser;
 import com.anno.csv.MyUser;
+import com.google.gson.Gson;
 import com.opencsv.CSVWriter;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
@@ -24,12 +29,12 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 public class AddressBookCsvJson {
 	public static Scanner sc = new Scanner(System.in);
 	public static final String OBJECT_LIST_SAMPLE = "./personContact-list-sample.csv";
+	public static final String SAMPLE_JSON_FILE_PATH = "./personContact-list-sample.json";
 	public static List<Person> contact = new ArrayList<Person>();
 	
 	//main method..
 	public static void main(String[] args) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IOException {
 		mainMenu();
-		openCSVReaderObjectList(OBJECT_LIST_SAMPLE);
 	}
 	
 	//Main Menu
@@ -41,6 +46,7 @@ public class AddressBookCsvJson {
 	        System.out.println(" 2. Display Data. ");
 	        System.out.println(" 3. Write Data into a text file. ");
 	        System.out.println(" 4. Write Data into a csv file");
+	        System.out.println(" 5. ReadWrite Data into Json file");
 	    	menu = sc.nextInt();
 	    	switch (menu) {
 		    	case 0:
@@ -57,6 +63,9 @@ public class AddressBookCsvJson {
 		    	   break;
 		        case 4:
 		        	openCSVWriterObjectList(OBJECT_LIST_SAMPLE);
+		        	break;
+		        case 5:
+		        	readWritePersonContactObjectToJson();
 		        	break;
 		        default:
 		    	   System.out.println("Invali input..");
@@ -123,6 +132,25 @@ public class AddressBookCsvJson {
 						.build();
 				
 					csvToBean.parse().forEach(System.out::println);
+		}
+	}
+	public static void readWritePersonContactObjectToJson() {
+		try {
+			Gson gson = new Gson();
+			String json = gson.toJson(contact);
+			FileWriter writer = new FileWriter(SAMPLE_JSON_FILE_PATH);
+			writer.write(json);
+			writer.close();
+			BufferedReader br = new BufferedReader(new FileReader(SAMPLE_JSON_FILE_PATH));
+			Person[] personObj = gson.fromJson(br, Person[].class);
+			List<Person> personList = Arrays.asList(personObj);
+			for(Person person : personList) {
+				System.out.println(person);
+				System.out.println();
+			}
+			br.close();
+		} catch(IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
